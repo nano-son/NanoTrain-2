@@ -29,11 +29,6 @@ cookies = {
     'saveMember': id
 }
 
-# stations = {
-# #'부산' : 0003
-# #'수원' : 0020
-# }
-
 lookup_param = {
     'selGoTrain': train_sort,
     'txtPsgFlg_1': 1, #n: 어른 수
