@@ -3,17 +3,18 @@ import sys
 import time
 from bs4 import BeautifulSoup as bs
 from stationCode import stations
+from pygame import mixer
 
 id = "id"
 pw = "pw"
-depart_station = "부산"
-arrive_station = "수원"
+depart_station = "서울"
+arrive_station = "동대구"
 train_sort = '00' #열차 종류. 전체:05, KTX_SRT:00, ITX_청춘:09, 새마을호/ITX-새마을:08, 무궁화:02, 통근열차:03
 number_of_adult = 1
-year = '2018' #YYYY
-month = '09' #MM
-day = '26' #DD (3일이면 03으로 해야함)
-reserve_time = '1700' #HHMM으로
+year = '2019' #YYYY
+month = '01' #MM
+day = '13' #DD (3일이면 03으로 해야함)
+reserve_time = '2200' #HHMM으로
 # day_of_week = '수' #요일
 sleep_time = 5
 
@@ -156,10 +157,10 @@ reserve_param = {
     'txtJrnySqno1': '001', #?? 고정인듯
     'txtJrnyTpCd1': '11', #편도:11, 환승:14
     'txtDptDt1': year+month+day, #이렇게 하면 새벽기차는 날짜가 달라질텐데...
-    'txtDptRsStnCd1': '0020', #출발역 코드
+    'txtDptRsStnCd1': stations[depart_station], #출발역 코드
     'txtDptRsStnCdNm1': depart_station, #출발역 이름
     'txtDptTm1': '**', #출발시간
-    'txtArvRsStnCd1': '0003', #도착역 코드
+    'txtArvRsStnCd1': stations[arrive_station], #도착역 코드
     'txtArvRsStnCdNm1': arrive_station, #도착역 이름
     'txtArvTm1': '**', #도착시간
     'txtTrnNo1': '**', #열차 번호 (열차관련 정보)
@@ -239,6 +240,7 @@ def login_confirm():
     else:
         return False
 
+
 #좌석 조회
 def lookup():
     print('\n좌석을 조회합니다..')
@@ -261,11 +263,11 @@ def lookup():
 
         print('train number : {}, depart_time:{}, arrive_time:{}'.format(train_number, depart_time, arrive_time))
 
-        if('예약하기' in str(economy_class_seat)):
+        if '예약하기' in str(economy_class_seat):
             #예약 가능한 객체 정보를 리턴하자.
             print('train number:{} 예약 가능. 시도해보겠음'.format(train_number))
             print('--------')
-            if(reserve(depart_time, arrive_time, train_number)):
+            if reserve(depart_time, arrive_time, train_number):
                 return True
     return False
 
@@ -293,11 +295,28 @@ def reserve(depart_time, arrive_time, train_number):
         return True
     return False
 
+
 def validate_setting_info():
     #날짜, 시간 체크
     #역 체크
     return True
 
+
+def announce_success():
+    for i in range(1, 4):
+        mixer.init()
+        mixer.music.load('gunshot.mp3')
+        # wait for load
+        time.sleep(1)
+        # wait for load
+        time.sleep(1)
+        mixer.music.play()
+        while mixer.music.get_busy():
+            time.sleep(1)
+    print("done")
+
+def shutdown():
+    sys.exit(1)
 
 ######################################################################
 #########################    MAIN LOGIC    ###########################
@@ -306,19 +325,20 @@ def validate_setting_info():
 
 if not validate_setting_info():
     print("setting info check plz")
-    sys.exit(1)
+    shutdown()
 
 
-if(login(id, pw) and login_confirm()):
+if login(id, pw) and login_confirm():
     print('***[ LOGIN SUCCESS ]')
 else:
     print('***[ LOGIN FAIL ]')
     sys.exit(1)
 
-while(True):
+while True:
     result = lookup()
     if(result):
         print('---------예약성공---------')
+        announce_success()
         sys.exit(0)
     time.sleep(sleep_time)
 
