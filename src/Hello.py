@@ -12,8 +12,8 @@ import metaInformation as meta
 
 id = "id"                   #id
 pw = "pw"                   #pw
-depart_station = "서울"      #출발역
-arrive_station = "동대구"      #도착역
+depart_station = "서울"      #출발역 (역 이름은 stationCode.py 참고)
+arrive_station = "동대구"      #도착역 (역 이름은 stationCode.py 참고)
 train_sort = '00'           # 열차 종류. 전체:05, KTX_SRT:00, ITX_청춘:09, 새마을호/ITX-새마을:08, 무궁화:02, 통근열차:03 (KTX를 제외하고는 테스트해보지 않아서 될지 잘 모르겠음)
 year = '2019'               #예약하고자하는 년도 (YYYY형식)
 month = '01'                # 예약하고자하는 월 (MM형식) (2월이면 02로 해야함)
@@ -186,9 +186,6 @@ def find_empty_seats():
     tr_list = bs(response.text, 'html.parser').select('#tableResult > tr')
     for tr in tr_list:
         td_list = bs(str(tr), 'html.parser').select('td')
-        # train_type = bs(str(td_list[1]), 'html.parser').find('span').text.strip()
-        # if train_type != meta.KTX:
-        #     continue
 
         depart_time = td_list[2].text.replace(depart_station, ' ').replace(':', '').strip()
         arrive_time = td_list[3].text.replace(arrive_station, ' ').replace(':', '').strip()
@@ -196,17 +193,16 @@ def find_empty_seats():
         train_number = bs(str(td_list[1]), 'html.parser').find('a').text.strip().rjust(5, '0')
         # first_class_seat = td_list[4]  # 필요하면 쓰도록
         economy_class_seat_info = td_list[5]
-        # child_seat = td_list[6]
+        # child_seat = td_list[6] #필요하면 쓰도록
 
         print('train number : {}, depart_time:{}, arrive_time:{}'
               .format(train_number, depart_time, arrive_time))
 
-        if not int(depart_time) < int(reserve_max_time):
-            print('train number={}는 예약대상이 아닙니다.'.format(train_number))
+        if int(depart_time) > int(reserve_max_time):
             continue
 
         if can_reserve(economy_class_seat_info) and \
-                reserve(depart_time, arrive_time,train_number.ljust(6, '0')):
+                reserve(depart_time, arrive_time, train_number):
             return True
     return False
 
