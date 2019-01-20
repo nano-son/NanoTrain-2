@@ -6,18 +6,29 @@ from stationCode import stations
 from pygame import mixer
 import metaInformation as meta
 
+######################################################################
+######################    REQUIRED SETTING    ########################
+######################################################################
+
 id = "id"                   #id
 pw = "pw"                   #pw
 depart_station = "서울"      #출발역
 arrive_station = "동대구"      #도착역
-train_sort = '00'           # 열차 종류. 전체:05, KTX_SRT:00, ITX_청춘:09, 새마을호/ITX-새마을:08, 무궁화:02, 통근열차:03
-number_of_adult = 1         # 사람 수 (귀찮아서 성인만 함)
+train_sort = '00'           # 열차 종류. 전체:05, KTX_SRT:00, ITX_청춘:09, 새마을호/ITX-새마을:08, 무궁화:02, 통근열차:03 (KTX를 제외하고는 테스트해보지 않아서 될지 잘 모르겠음)
 year = '2019'               #예약하고자하는 년도 (YYYY형식)
-month = '02'                # 예약하고자하는 월 (MM형식)
-day = '04'                  # 예약하고하자는 일 (DD형식) (3일이면 03으로 해야함)
+month = '01'                # 예약하고자하는 월 (MM형식) (2월이면 02로 해야함)
+day = '20'                  # 예약하고하자는 일 (DD형식) (3일이면 03으로 해야함)
 reserve_min_time = '1700'  # HHMM으로
-reserve_max_time = '1901'
+reserve_max_time = '1901'  # 17:00 ~ 18:00에 출발하는 열차를 예약하려고 하면 reserver_min_time을 1700, reserve_max_time을 1901로 설정하면 된다.
+# number_of_adult = 1         # 사람 수 (귀찮아서 성인만 함)
 sleep_time = 5
+
+
+
+######################################################################
+##################    DO NOT FIX THE CODE BELOW   ####################
+######################################################################
+
 
 cookies = {
     'saveMember': id
@@ -216,7 +227,7 @@ def reserve(depart_time, arrive_time, train_number):
     param['txtDptTm1'] = depart_time.ljust(6, '0')
     param['txtArvTm1'] = arrive_time.ljust(6, '0')
 
-    response = requests.post(meta.reserve_url, headers=meta.common_header, cookies=cookies, params=param)
+    response = requests.post(meta.reserve_url, headers=header, cookies=cookies, params=param)
 
     if response.status_code == 200 and meta.reserv_success_msg in response.text:
         print(meta.reserv_success_msg)
